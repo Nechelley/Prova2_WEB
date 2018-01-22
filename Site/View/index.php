@@ -5,11 +5,11 @@
 		<title>Home</title>
 	</head>
 	<body>
-		<form action="lotoInterface.php" method="post" enctype="multipart/form-data">
+		<form action="../Controller/lotoInterface.php" method="post" enctype="multipart/form-data">
 			<input type="hidden" name="acao" value="carregarHTML">
-			Arquivo HTML:
-			<input type="file" name="arquivo"><br/>
-			<input type="submit" value="Enviar">
+			<!-- Arquivo HTML:
+			<input type="file" name="arquivo"><br/> -->
+			<input type="submit" value="Carregar">
 		</form>
 	</body>
 </html>
