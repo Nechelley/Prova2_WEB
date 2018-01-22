@@ -9,7 +9,7 @@
 			$retorno = new stdClass();
 
 			//conecta
-			$conexao = new Conexao('localhost', 'prova2Web', 'root', '');
+			$conexao = new Conexao('localhost', 'db_p2_web', 'root', '');
 			if(!$conexao->getErros()){
 				$retorno->status = false;
 				$retorno->resposta = $GLOBALS['msgErroConectarBanco'];
@@ -65,7 +65,7 @@
 			$retorno = new stdClass();
 
 			//conecta
-			$conexao = new Conexao('localhost', 'prova2Web', 'root', '');
+			$conexao = new Conexao('localhost', 'db_p2_web', 'root', '');
 			if(!$conexao->getErros()){
 				$retorno->status = false;
 				$retorno->resposta = $GLOBALS['msgErroConectarBanco'];
@@ -121,7 +121,7 @@
 			}
 
 			$conexao->commitTransacao();
-			
+
 			$retorno->status = true;
 			return $retorno;
 		}
