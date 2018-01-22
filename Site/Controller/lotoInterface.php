@@ -1,4 +1,5 @@
 <?php
+	error_reporting(0);
 	require_once('Util/Msgs.php');
 
 	// require_once('../Model/Bean/AulaBean.class.php');
@@ -12,6 +13,7 @@
 		header('Location: ../View');
 	}
 
+	$retorno = new stdClass();
 	switch($acao){
 		case 'carregarHTML':
 			//abrir arquivo
@@ -25,14 +27,12 @@
 			}
 
 			//tratar dados e colocar no retorno pronto em json
-
-			$retorno = new stdClass();
 			$retorno->status = true;
 			$retorno->resposta = array();
 
 			$apontador = 0;
 			$tamanho = count($texto);
-			while($apontador < $tamanho){
+			while($apontador < $tamanho-34){//-34 para remover o ultimo objeto
 				$linha = new stdClass();
 				//pegar primeiras colunas
 				$linha->concurso = intval($texto[$apontador++]);
@@ -48,8 +48,8 @@
 				$linha->cidades = array();
 				$linha->ufs = array();
 				$aux = trim($texto[$apontador++]);
-				array_push($linha->cidades, substr($aux,0,strlen($aux)-2));//tira os dois ultimos caracteres
-				array_push($linha->ufs, substr($aux,strlen($aux)-2));//pega os dois ultimos caracteres
+				array_push($linha->cidades, utf8_encode(substr($aux,0,strlen($aux)-2)));//tira os dois ultimos caracteres
+				array_push($linha->ufs, utf8_encode(substr($aux,strlen($aux)-2)));//pega os dois ultimos caracteres
 
 				$linha->qntGanhadores14 = intval($texto[$apontador++]);
 				$linha->qntGanhadores13 = intval($texto[$apontador++]);
@@ -71,8 +71,8 @@
 				//hora de pegar a localizcao dos ganhadores 15 que faltam
 				for($i = 0; $i < $linha->qntGanhadores15 - 1; $i++){
 					$aux = trim($texto[$apontador++]);
-					array_push($linha->cidades, substr($aux,0,strlen($aux)-2));//tira os dois ultimos caracteres
-					array_push($linha->ufs, substr($aux,strlen($aux)-2));//pega os dois ultimos caracteres
+					array_push($linha->cidades, utf8_encode(substr($aux,0,strlen($aux)-2)));//tira os dois ultimos caracteres
+					array_push($linha->ufs, utf8_encode(substr($aux,strlen($aux)-2)));//pega os dois ultimos caracteres
 				}
 
 				$apontador++;//pula linha vazia
@@ -81,23 +81,8 @@
 
 			//fecha arquivo
 			fclose($arq);
-
-			
-			//ler dados
-
-			// $nome = Util::limpaString($_DADOS['nome']);
-			// $data = Util::limpaString($_DADOS['data']);
-			// $periodoRegime = base64_decode(Util::limpaString($_DADOS['periodoRegime']));
-
-			//cria bean
-			// $aulaBean = new AulaBean();
-			// $aulaBean->setNome($nome);
-			// $aulaBean->setData($data);
-			// $aulaBean->setPeriodoRegimeId($periodoRegime);
-
-			//executa no banco
-			// $retorno = AulaDao::addAula($aulaBean);
 			break;
 	}
+	
 	echo json_encode($retorno);
 ?>
