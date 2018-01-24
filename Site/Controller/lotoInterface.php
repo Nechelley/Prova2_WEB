@@ -1,5 +1,6 @@
 <?php
-	error_reporting(0);
+	// error_reporting(0);
+	set_time_limit(500);
 	require_once('Util/Msgs.php');
 
 	// require_once('../Model/Bean/AulaBean.class.php');
@@ -42,7 +43,7 @@
 				for($i = 0; $i < 15; $i++){
 					array_push($linha->bolas, intval($texto[$apontador++]));
 				}
-				$linha->arrecadacaoTotal = floatval($texto[$apontador++]);
+				$linha->arrecadacaoTotal = floatval(str_replace(".","",$texto[$apontador++]));
 				$linha->qntGanhadores15 = intval($texto[$apontador++]);
 
 				$linha->cidades = array();
@@ -56,15 +57,15 @@
 				$linha->qntGanhadores12 = intval($texto[$apontador++]);
 				$linha->qntGanhadores11 = intval($texto[$apontador++]);
 
-				$linha->rateio15 = floatval($texto[$apontador++]);
-				$linha->rateio14 = floatval($texto[$apontador++]);
-				$linha->rateio13 = floatval($texto[$apontador++]);
-				$linha->rateio12 = floatval($texto[$apontador++]);
-				$linha->rateio11 = floatval($texto[$apontador++]);
+				$linha->rateio15 = floatval(str_replace(".","",$texto[$apontador++]));
+				$linha->rateio14 = floatval(str_replace(".","",$texto[$apontador++]));
+				$linha->rateio13 = floatval(str_replace(".","",$texto[$apontador++]));
+				$linha->rateio12 = floatval(str_replace(".","",$texto[$apontador++]));
+				$linha->rateio11 = floatval(str_replace(".","",$texto[$apontador++]));
 
-				$linha->acumulado15 = floatval($texto[$apontador++]);
-				$linha->estimativaPremio = floatval($texto[$apontador++]);
-				$linha->valorAcumuladoEspecial = floatval($texto[$apontador++]);
+				$linha->acumulado15 = floatval(str_replace(".","",$texto[$apontador++]));
+				$linha->estimativaPremio = floatval(str_replace(".","",$texto[$apontador++]));
+				$linha->valorAcumuladoEspecial = floatval(str_replace(".","",$texto[$apontador++]));
 
 				$apontador++;//pula linha vazia
 
@@ -81,8 +82,73 @@
 
 			//fecha arquivo
 			fclose($arq);
+
+			//parte do sincronismo com o banco passar para a opcao de baixo depois//////////////////////////////////////////////////////////////////////////
+			// echo json_encode($retorno);
+			$dados = $retorno->resposta;
+			$retorno = null;
+			//pegar informacoes dos concursos
+			require_once("../Dao/ConcursoDao.class.php");
+			$ids = ConcursoDao::getIds();
+			if(!$ids->status){//deu errado
+				$retorno->status = false;
+				$retorno->resposta = $ids->resposta;
+			}
+			else{
+				//coloco os ids em um array
+				$idsArray = array();
+				foreach ($ids->resposta as $id) {
+					array_push($idsArray,$id->id);
+				}
+
+				//analiso o obj a ser sincronizado usando o ids como norte
+				foreach ($dados as $obj) {
+					// print_r($obj);
+					if($retorno == null){
+						if(in_array($obj->concurso,$idsArray)){
+							//se o obj estiver no entao as infs dele devem ser atualizadas no banco
+							// $ret = ConcursoDao::atualizar($obj);
+							// if(!$ret->status){//deu erro
+							// 	$retorno = $ret;
+							// 	break;
+							// }
+							$key = array_search($obj->concurso, $idsArray);
+							unset($idsArray[$key]);
+						}
+						else{
+							//se o objeto nao esta entao e novo e deve ser inserido
+							$ret = ConcursoDao::inserir($obj);
+							if(!$ret->status){//deu erro
+								$retorno = $ret;
+								break;
+							}
+						}
+					}
+				}
+
+				if($retorno == null){
+					//agora os ids que sobraram serao removidos
+					foreach ($idsArray as $id) {
+						$ret = ConcursoDao::remover($id);
+						if(!$ret->status){//deu erro
+							$retorno = $ret;
+							break;
+						}
+					}
+				}
+
+				//sincronizacao concluida
+			}
+			break;
+		case 'sincronizarHTML':
+			//le dados
+			$dadosParaSincronizar = json_decode(utf8_encode($_DADOS["dadosParaSincronizar"]));
+
+			print_r(json_last_error());
+
+
 			break;
 	}
-	
+
 	echo json_encode($retorno);
 ?>

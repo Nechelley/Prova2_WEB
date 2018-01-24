@@ -4,6 +4,7 @@
 		<meta charset="utf-8">
 		<title>Home</title>
 		<script type="text/javascript">
+			var retorno;
 			function carregarJSON(){
 				var url = "../Controller/lotoInterface.php";
 				var acao = "carregarHTML";
@@ -15,14 +16,42 @@
 				ajax.onload = function() {
 					if (ajax.readyState == 4) {
 						if (ajax.status == 200) {
-							var retorno = JSON.parse(ajax.responseText);//objeto com as informacoes carregadas do arquivo
+							// retorno = JSON.parse(ajax.responseText);//objeto com as informacoes carregadas do arquivo
+							alert("Carregado!");
 						}
 					}
 				};
 			}
+
+			//sincroniza com o banco de acordo com o id do concurso
+			function sincronizarJSON(){
+				//pegar dados da tabela
+				var dadosParaSincronizar = getDados();
+
+				var url = "../Controller/lotoInterface.php";
+				var acao = "sincronizarHTML";
+
+				ajax = new XMLHttpRequest();
+				ajax.open("POST",url);
+				ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+				ajax.send("acao="+acao+"&dadosParaSincronizar="+dadosParaSincronizar);
+				ajax.onload = function() {
+					if (ajax.readyState == 4) {
+						if (ajax.status == 200) {
+							alert(JSON.parse(ajax.responseText).status);//objeto com as informacoes carregadas do arquivo
+						}
+					}
+				};
+			}
+			//cria o json com as informacoes da tabela
+			function getDados(){
+				return JSON.stringify(retorno);
+			}
+
 		</script>
 	</head>
 	<body>
 		<input type="button" onclick="carregarJSON();" value="Carregar"/>
+		<input type="button" onclick="sincronizarJSON();" value="Sincronizar"/><!-- lembrar de desabilitar esse botao ate o carregamento estar efetuado, para n bugar acontecendo os dois juntos; -->
 	</body>
 </html>
