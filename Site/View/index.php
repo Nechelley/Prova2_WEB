@@ -125,6 +125,48 @@
 				};
 			}
 
+			//cadastrar um novo concurso sem nada
+			function criarNovoConcurso(){
+				var url = "../Controller/lotoInterface.php";
+				var acao = "criarNovoConcurso";
+				var concurso = {dataSorteio:"1997-03-31",arrecadacaoTotal:1,estimativaPremio:2,valorAcumuladoEspecial:3};
+
+				ajax = new XMLHttpRequest();
+				ajax.open("POST",url);
+				ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+				ajax.send("acao="+acao+"&concurso="+JSON.stringify(concurso));
+				ajax.onload = function() {
+					if (ajax.readyState == 4) {
+						if (ajax.status == 200) {
+							alert(ajax.responseText);//objeto com as informacoes carregadas do arquivo
+						}
+					}
+				};
+			}
+			//adicona a jogada em um concurso, o concurso nao pode estar concluido
+			function addJogadaNoConcurso(){
+				var url = "../Controller/lotoInterface.php";
+				var acao = "addJogadaNoConcurso";
+				var jogada = {id:501,nome:"John",cidade:"Lavras",uf:"MG",bolas:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]};
+
+				ajax = new XMLHttpRequest();
+				ajax.open("POST",url);
+				ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+				ajax.send("acao="+acao+"&jogada="+JSON.stringify(jogada));
+				ajax.onload = function() {
+					if (ajax.readyState == 4) {
+						if (ajax.status == 200) {
+							alert(ajax.responseText);//objeto com as informacoes carregadas do arquivo
+						}
+					}
+				};
+			}
+
+
+
+
+
+
 		</script>
 	</head>
 	<body>
@@ -134,6 +176,7 @@
 		<input type="button" onclick="getBolasMaisSorteadas();" value="getBolasMaisSorteadas"/>
 		<input type="button" onclick="testarJogada();" value="testarJogada"/>
 		<input type="button" onclick="getEstadosComMaisGanhadores();" value="getEstadosComMaisGanhadores"/><br><br><br><h1>PART2</h1><br><br>
-		<input type="button" onclick="getEstadosComMaisGanhadores();" value="getEstadosComMaisGanhadores"/>
+		<input type="button" onclick="criarNovoConcurso();" value="criarNovoConcurso"/>
+		<input type="button" onclick="addJogadaNoConcurso();" value="addJogadaNoConcurso"/>
 	</body>
 </html>

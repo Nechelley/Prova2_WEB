@@ -218,5 +218,60 @@
 			//executa
 			return ProcessaQuery::consultarQuery($query);
 		}
+
+		//criar um novo concurso vazio
+		public static function criarNovoConcurso($obj){
+			//cria a query
+			$query = "INSERT INTO Concurso
+			(id,data_sorteio,arrecadacao_total,estimativa_premio,valor_acumulado_especial,ocorreu)
+			VALUES
+			({$obj->id},'{$obj->dataSorteio}',{$obj->arrecadacaoTotal},{$obj->estimativaPremio},{$obj->valorAcumuladoEspecial},0);";
+
+			// 	die(print_r($query,true));
+			//executa
+			return ProcessaQuery::executarQuery($query);
+		}
+
+		//retorna o id do ultimo concurso inserido
+		public static function getIdUltimoConcurso(){
+			//cria a query
+			$query = "SELECT id FROM Concurso ORDER BY id DESC LIMIT 1;";
+
+			// 	die(print_r($query,true));
+			//executa
+			return ProcessaQuery::consultarQuery($query);
+		}
+
+		//adiciona a jogada no concurso
+		public static function addJogadaNoConcurso($jogada){
+			//cria a query
+			$query = array();
+			$x = 0;//contador de queries
+
+			$query[$x++] = "INSERT INTO Jogada(nome,cidade,uf,Concurso_id)
+					VALUES ('{$jogada->nome}','{$jogada->cidade}','{$jogada->uf}',{$jogada->id});";
+
+			$query[$x] = "INSERT INTO BolaJogada(valor,Jogada_id)
+					VALUES";
+			foreach ($jogada->bolas as $bola) {
+				$query[$x] .= "({$bola},LAST_INSERT_ID()),";
+			}
+			$query[$x] = rtrim($query[$x],",").";";
+			$x++;
+
+			// 	die(print_r($query,true));
+			//executa
+			return ProcessaQuery::executarQuery($query);
+		}
+
+		//retorna os concursos com o id correspondente
+		public static function getConcurso($id){
+			//cria a query
+			$query = "SELECT * FROM Concurso WHERE id = {$id} AND ocorreu = 1;";
+
+			// 	die(print_r($query,true));
+			//executa
+			return ProcessaQuery::consultarQuery($query);
+		}
 	}
 ?>

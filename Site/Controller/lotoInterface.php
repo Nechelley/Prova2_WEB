@@ -288,6 +288,47 @@
 				}
 			}
 			break;
+
+		case 'criarNovoConcurso':
+			$obj = json_decode($_DADOS['concurso']);
+
+			$retorno = ConcursoDao::getIdUltimoConcurso();
+			if($retorno->status){//deu certo
+				$obj->id = $retorno->resposta[0]->id + 1;
+
+				$retorno = ConcursoDao::criarNovoConcurso($obj);
+			}
+			break;
+		case 'addJogadaNoConcurso':
+			$jogada = json_decode($_DADOS['jogada']);
+
+			//testa se o concurso ainda nao foi concluido
+			$retorno = ConcursoDao::getConcurso($jogada->id);
+			if($retorno->status){//deu certo
+				if(empty($retorno->resposta)){
+					$retorno = ConcursoDao::addJogadaNoConcurso($jogada);
+				}
+				else{//ja foi concluido
+					$retorno->status = false;
+					$retorno->resposta = "Concurso já finalizado!";
+				}
+			}
+			break;
+		// case 'encerrarConcurso':
+		// 	$obj = json_decode($_DADOS['obj']);
+        //
+		// 	//testa se o concurso ainda nao foi concluido
+		// 	$retorno = ConcursoDao::getConcurso($obj->id);
+		// 	if($retorno->status){//deu certo
+		// 		if(empty($retorno->resposta)){
+		// 			$retorno = ConcursoDao::addJogadaNoConcurso($jogada);
+		// 		}
+		// 		else{//ja foi concluido
+		// 			$retorno->status = false;
+		// 			$retorno->resposta = "Concurso já finalizado!";
+		// 		}
+		// 	}
+		// 	break;
 	}
 
 	echo json_encode($retorno);
