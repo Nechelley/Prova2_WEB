@@ -64,7 +64,7 @@
 				$query[7] .= "('{$obj->cidades[$i]}','{$obj->ufs[$i]}',LAST_INSERT_ID()),";
 			}
 			$query[7] = rtrim($query[7],",").";";
-
+			// die(print_r($query,true));
 			//executa
 			return ProcessaQuery::executarQuery($query);
 		}
@@ -154,6 +154,28 @@
 		public static function getIds(){
 			$query = "SELECT DISTINCT id FROM Concurso;";
 			// die($query);
+			//executa
+			return ProcessaQuery::consultarQuery($query);
+		}
+
+		//retorna tudo que esta no banco, ate o limite
+		public static function getTudo($limit){
+			$query = array();
+			$query[0] = "SELECT a.id,data_sorteio,arrecadacao_total,estimativa_premio,valor_acumulado_especial,
+							qnt_bolas_acertadas,qnt_ganhadores,rateio,acumulado,cidade,uf
+					FROM
+					Concurso AS a
+					INNER JOIN
+					(
+						SELECT Concurso_id,qnt_bolas_acertadas,qnt_ganhadores,rateio,acumulado,cidade,uf
+						FROM Ganhadores LEFT JOIN SuperGanhador ON Ganhadores.id = Ganhadores_id
+					) AS b
+					ON
+					a.id = b.Concurso_id order by id,qnt_bolas_acertadas LIMIT {$limit};";
+
+
+			$query[1] = "SELECT valor FROM Bola ORDER BY Concurso_id;";
+
 			//executa
 			return ProcessaQuery::consultarQuery($query);
 		}

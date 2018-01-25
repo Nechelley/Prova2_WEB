@@ -1,10 +1,8 @@
 <?php
-	// error_reporting(0);
+	error_reporting(0);
 	set_time_limit(500);
 	require_once('Util/Msgs.php');
-
-	// require_once('../Model/Bean/AulaBean.class.php');
-	// require_once('../Model/Dao/AulaDao.class.php');
+	require_once("../Dao/ConcursoDao.class.php");
 
 	$_DADOS = $_POST;
 
@@ -87,7 +85,6 @@
 			$dados = $retorno->resposta;
 			$retorno = null;
 			//pegar informacoes dos concursos
-			require_once("../Dao/ConcursoDao.class.php");
 			$ids = ConcursoDao::getIds();
 			if(!$ids->status){//deu errado
 				$retorno->status = false;
@@ -153,6 +150,67 @@
 			// print_r(json_last_error());
 
 
+			break;
+		case 'carregarTudoDoBanco':
+			$ret = ConcursoDao::getTudo(100);
+			if(!$ret->status){//deu errado
+				$retorno->status = false;
+				$retorno->resposta = $ids->resposta;
+			}
+			else{//deu certo
+				$retorno->status = true;
+				$retorno->resposta = array();
+
+				$ret = $ret->resposta;
+
+				$td = array();
+
+				$tamanho = count($ret[0]);
+				$apontador = 0;
+				while($apontador < $tamanho){
+					$obj = new stdClass();
+
+					$obj->concurso = $ret[0][$apontador]->id;
+					$obj->dataSorteio = $ret[0][$apontador]->data_sorteio;
+					$obj->arrecadacaoTotal = $ret[0][$apontador]->arrecadacao_total;
+					$obj->estimativaPremio = $ret[0][$apontador]->estimativa_premio;
+					$obj->valorAcumuladoEspecial = $ret[0][$apontador]->valor_acumulado_especial;
+
+					$obj->bolas = array();
+					$aux = $apontador*15;
+					for($i = $aux; $i < $aux+15; $i++){
+						array_push($obj->bolas, $ret[1][$i]->valor);
+					}
+
+					$obj->qntGanhadores11 = $ret[0][$apontador]->qnt_ganhadores;
+					$obj->rateio11 = $ret[0][$apontador++]->rateio;
+
+					$obj->qntGanhadores12 = $ret[0][$apontador]->qnt_ganhadores;
+					$obj->rateio12 = $ret[0][$apontador++]->rateio;
+
+					$obj->qntGanhadores13 = $ret[0][$apontador]->qnt_ganhadores;
+					$obj->rateio13 = $ret[0][$apontador++]->rateio;
+
+					$obj->qntGanhadores14 = $ret[0][$apontador]->qnt_ganhadores;
+					$obj->rateio14 = $ret[0][$apontador++]->rateio;
+
+					$obj->qntGanhadores15 = $ret[0][$apontador]->qnt_ganhadores;
+					$obj->rateio15 = $ret[0][$apontador]->rateio;
+					$obj->acumulado15 = $ret[0][$apontador]->acumulado;
+
+					$obj->cidades = array();
+					$obj->ufs = array();
+					for($i = 0; $i < $obj->qntGanhadores15; $i++){
+						array_push($obj->cidades, utf8_encode($ret[0][$apontador]->cidade));//tira os dois ultimos caracteres
+						array_push($obj->ufs, utf8_encode($ret[0][$apontador]->uf));//pega os dois ultimos caracteres
+						$apontador++;
+					}
+					if($obj->qntGanhadores15 == 0)
+						$apontador++;
+
+					array_push($retorno->resposta, $obj);
+				}
+			}
 			break;
 	}
 
