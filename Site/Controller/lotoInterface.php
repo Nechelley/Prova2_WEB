@@ -84,7 +84,6 @@
 			fclose($arq);
 
 			//parte do sincronismo com o banco passar para a opcao de baixo depois//////////////////////////////////////////////////////////////////////////
-			// echo json_encode($retorno);
 			$dados = $retorno->resposta;
 			$retorno = null;
 			//pegar informacoes dos concursos
@@ -102,15 +101,7 @@
 				}
 
 				//analiso o obj a ser sincronizado usando o ids como norte
-				// $cont = 0;
 				foreach ($dados as $obj) {
-					// echo $cont."-";
-					// if($cont > 10){
-					// 	$retorno = new stdClass();
-					// 	$retorno->status = true;
-					// 	$retorno->resposta = " ";
-					// 	break;
-					// }
 					// print_r($obj);
 					if($retorno == null){
 						if(in_array($obj->concurso,$idsArray)){
@@ -132,7 +123,6 @@
 							}
 						}
 					}
-					// $cont++;
 				}
 
 				if($retorno == null){
@@ -152,8 +142,6 @@
 					$retorno->status = true;
 					$retorno->resposta = $dados;
 				}
-
-
 			}
 			break;
 		case 'sincronizarHTML':

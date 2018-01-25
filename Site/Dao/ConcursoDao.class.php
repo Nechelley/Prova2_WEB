@@ -142,6 +142,14 @@
 			return ProcessaQuery::executarQuery($query);
 		}
 
+		//remove o obj com o id passado
+		public static function remover($id){
+			$query = "DELETE FROM Concurso WHERE id = {$id};";
+			// die($query);
+			//executa
+			return ProcessaQuery::executarQuery($query);
+		}
+
 		//retorna os ids da tabela concurso
 		public static function getIds(){
 			$query = "SELECT DISTINCT id FROM Concurso;";
