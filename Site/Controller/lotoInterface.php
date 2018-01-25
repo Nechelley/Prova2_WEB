@@ -24,7 +24,7 @@
 			$texto = array();//cada indice sera uma linha
 			fgets($arq);//pula linha vazia
 			while(!feof($arq)){
-				array_push($texto, trim(strip_tags(fgets($arq))) );
+				array_push($texto, utf8_encode(trim(strip_tags(fgets($arq)))) );
 			}
 
 			//tratar dados e colocar no retorno pronto em json
@@ -102,16 +102,24 @@
 				}
 
 				//analiso o obj a ser sincronizado usando o ids como norte
+				// $cont = 0;
 				foreach ($dados as $obj) {
+					// echo $cont."-";
+					// if($cont > 10){
+					// 	$retorno = new stdClass();
+					// 	$retorno->status = true;
+					// 	$retorno->resposta = " ";
+					// 	break;
+					// }
 					// print_r($obj);
 					if($retorno == null){
 						if(in_array($obj->concurso,$idsArray)){
 							//se o obj estiver no entao as infs dele devem ser atualizadas no banco
-							// $ret = ConcursoDao::atualizar($obj);
-							// if(!$ret->status){//deu erro
-							// 	$retorno = $ret;
-							// 	break;
-							// }
+							$ret = ConcursoDao::atualizar($obj);
+							if(!$ret->status){//deu erro
+								$retorno = $ret;
+								break;
+							}
 							$key = array_search($obj->concurso, $idsArray);
 							unset($idsArray[$key]);
 						}
@@ -124,6 +132,7 @@
 							}
 						}
 					}
+					// $cont++;
 				}
 
 				if($retorno == null){
@@ -138,13 +147,22 @@
 				}
 
 				//sincronizacao concluida
+				if($retorno == null){
+					$retorno = new stdClass();
+					$retorno->status = true;
+					$retorno->resposta = $dados;
+				}
+
+
 			}
 			break;
 		case 'sincronizarHTML':
 			//le dados
-			$dadosParaSincronizar = json_decode(utf8_encode($_DADOS["dadosParaSincronizar"]));
+			// print_r(json_decode(html_entity_decode(urldecode($_DADOS["dadosParaSincronizar"]))));
+			echo "<br>";
+			// $dadosParaSincronizar = json_decode(utf8_encode($_DADOS["dadosParaSincronizar"]));
 
-			print_r(json_last_error());
+			// print_r(json_last_error());
 
 
 			break;

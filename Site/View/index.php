@@ -16,7 +16,8 @@
 				ajax.onload = function() {
 					if (ajax.readyState == 4) {
 						if (ajax.status == 200) {
-							// retorno = JSON.parse(ajax.responseText);//objeto com as informacoes carregadas do arquivo
+							retorno = JSON.parse(ajax.responseText).resposta;//objeto com as informacoes carregadas do arquivo
+							console.log(retorno);
 							alert("Carregado!");
 						}
 					}

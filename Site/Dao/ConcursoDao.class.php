@@ -72,69 +72,74 @@
 		//atualiza o objeto no banco
 		public static function atualizar($obj){
 			// //cria a query
-			// $query = array();
-            //
-			// //add concurso
-			// $query[0] = "UPDATE Concurso SET
-			// 			data_sorteio = '{$obj->dataSorteio}',
-			// 			arrecadacao_total = {$obj->arrecadacaoTotal},
-			// 			estimativa_premio = {$obj->estimativaPremio},
-			// 			valor_acumulado_especial = {$obj->valorAcumuladoEspecial}
-			// 			WHERE id = {$obj->concurso};";
-            //
-			// $query[1] = "UPDATE Bola SET
-			// (valor,Concurso_id)
-			// VALUES";
-			// foreach ($obj->bolas as $bola) {
-			// 	$query[1] += "({$bola},{$obj->concurso}),";
-			// }
-			// $query[1] = rtrim($query[1],",").";";
-            //
-			// //11 bolas acertadas
-            //
-			// $query[2] = "INSERT INTO Ganhadores
-			// (qnt_bolas_acertadas,qnt_ganhadores,rateio,Concurso_id)
-			// VALUES
-			// (11,{$obj->qntGanhadores11},{$obj->rateio11},{$obj->concurso});";
-            //
-			// //12 bolas acertadas
-            //
-			// $query[3] = "INSERT INTO Ganhadores
-			// (qnt_bolas_acertadas,qnt_ganhadores,rateio,Concurso_id)
-			// VALUES
-			// (12,{$obj->qntGanhadores12},{$obj->rateio12},{$obj->concurso});";
-            //
-			// //13 bolas acertadas
-            //
-			// $query[4] = "INSERT INTO Ganhadores
-			// (qnt_bolas_acertadas,qnt_ganhadores,rateio,Concurso_id)
-			// VALUES
-			// (13,{$obj->qntGanhadores13},{$obj->rateio13},{$obj->concurso});";
-            //
-			// //14 bolas acertadas
-            //
-			// $query[5] = "INSERT INTO Ganhadores
-			// (qnt_bolas_acertadas,qnt_ganhadores,rateio,Concurso_id)
-			// VALUES
-			// (14,{$obj->qntGanhadores14},{$obj->rateio14},{$obj->concurso});";
-            //
-			// //15 bolas acertadas
-            //
-			// $query[6] = "INSERT INTO Ganhadores
-			// (qnt_bolas_acertadas,qnt_ganhadores,rateio,Concurso_id,acumulado)
-			// VALUES
-			// (15,{$obj->qntGanhadores15},{$obj->rateio15},{$obj->concurso},{$obj->acumulado15});";
-            //
-			// $query[7] = "INSERT INTO Ganhadores
-			// (cidade,uf,Ganhadores_id)
-			// VALUES";
-			// for ($i=0; $i < count($obj->qntGanhadores15); $i++) {
-			// 	$query[7] += "('{$obj->cidades[$i]}','{$obj->uf[$i]}',LAST_INSERT_ID()),";
-			// }
-			// $query[7] = rtrim($query[7],",").";";
-            //
-			// //executa
-			// return ProcessaQuery::executarQuery($query);
+			$query = array();
+
+			//add concurso
+			$query[0] = "UPDATE Concurso SET
+						data_sorteio = '{$obj->dataSorteio}',
+						arrecadacao_total = {$obj->arrecadacaoTotal},
+						estimativa_premio = {$obj->estimativaPremio},
+						valor_acumulado_especial = {$obj->valorAcumuladoEspecial}
+						WHERE id = {$obj->concurso};";
+
+			//deleto as bolas antigas e insiroas novas
+			$query[1] = "DELETE FROM Bola WHERE Concurso_id = {$obj->concurso};";
+
+			$query[2] = "INSERT INTO Bola
+			(valor,Concurso_id)
+			VALUES";
+			foreach ($obj->bolas as $bola) {
+				$query[2] .= "({$bola},{$obj->concurso}),";
+			}
+			$query[2] = rtrim($query[2],",").";";
+
+			//11 bolas acertadas
+			$query[3] = "UPDATE Ganhadores SET
+						qnt_ganhadores = {$obj->qntGanhadores11},
+						rateio = {$obj->rateio11}
+						WHERE qnt_bolas_acertadas = 11 AND Concurso_id = {$obj->concurso};";
+
+			//12 bolas acertadas
+			$query[4] = "UPDATE Ganhadores SET
+						qnt_ganhadores = {$obj->qntGanhadores12},
+						rateio = {$obj->rateio12}
+						WHERE qnt_bolas_acertadas = 12 AND Concurso_id = {$obj->concurso};";
+
+			//13 bolas acertadas
+			$query[5] = "UPDATE Ganhadores SET
+						qnt_ganhadores = {$obj->qntGanhadores13},
+						rateio = {$obj->rateio13}
+						WHERE qnt_bolas_acertadas = 13 AND Concurso_id = {$obj->concurso};";
+
+			//14 bolas acertadas
+			$query[6] = "UPDATE Ganhadores SET
+						qnt_ganhadores = {$obj->qntGanhadores14},
+						rateio = {$obj->rateio14}
+						WHERE qnt_bolas_acertadas = 14 AND Concurso_id = {$obj->concurso};";
+
+			//15 bolas acertadas
+			$query[7] = "UPDATE Ganhadores SET
+						qnt_ganhadores = {$obj->qntGanhadores15},
+						rateio = {$obj->rateio15},
+						acumulado = {$obj->acumulado15}
+						WHERE qnt_bolas_acertadas = 15 AND Concurso_id = {$obj->concurso};";
+
+
+			//deleto os superganhadores antigos e insiro os novos
+			$query[8] = "DELETE FROM SuperGanhador WHERE
+			Ganhadores_id = (SELECT id FROM Ganhadores WHERE qnt_bolas_acertadas = 15 AND Concurso_id = {$obj->concurso});";//esse select so retona um linha semrpe
+
+			$query[9] = "INSERT INTO SuperGanhador
+			(cidade,uf,Ganhadores_id)
+			VALUES";
+			for ($i=0; $i < count($obj->qntGanhadores15); $i++) {
+				$query[9] .= "('{$obj->cidades[$i]}','{$obj->ufs[$i]}',(SELECT id FROM Ganhadores WHERE qnt_bolas_acertadas = 15 AND Concurso_id = {$obj->concurso})),";
+			}
+			$query[9] = rtrim($query[9],",").";";
+			// print_r($query);
+			// die("sdsd");
+			//executa
+			return ProcessaQuery::executarQuery($query);
 		}
 
 		//retorna os ids da tabela concurso
