@@ -182,9 +182,17 @@
 			return ProcessaQuery::consultarQuery($query);
 		}
 
-		//retorna os ids da tabela concurso
+		//retornaas bolas mais sorteadas
 		public static function getBolasMaisSorteadas($top){
 			$query = "SELECT valor, COUNT(*) AS qnt FROM Bola GROUP BY valor ORDER BY qnt DESC LIMIT {$top};";
+			// die($query);
+			//executa
+			return ProcessaQuery::consultarQuery($query);
+		}
+
+		//retorna todas as bolas
+		public static function getBolas(){
+			$query = "SELECT Concurso_id,valor FROM Bola;";
 			// die($query);
 			//executa
 			return ProcessaQuery::consultarQuery($query);

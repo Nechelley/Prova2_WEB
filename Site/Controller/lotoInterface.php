@@ -155,7 +155,7 @@
 			$ret = ConcursoDao::getTudo(100);
 			if(!$ret->status){//deu errado
 				$retorno->status = false;
-				$retorno->resposta = $ids->resposta;
+				$retorno->resposta = $ret->resposta;
 			}
 			else{//deu certo
 				$retorno->status = true;
@@ -215,6 +215,53 @@
 		case 'getBolasMaisSorteadas':
 			$top = $_DADOS['top'];
 			$retorno = ConcursoDao::getBolasMaisSorteadas($top);
+			break;
+		case 'testarJogada':
+			$ret = ConcursoDao::getBolas();
+			if($ret->status){//deu certo
+				$retorno->status = true;
+				$retorno->resposta = array();//0,...,15 posicoes do vetor
+				for ($i=0; $i <= 15; $i++) {
+					$retorno->resposta[$i] = 0;
+				}
+
+				$escolhas = json_decode($_DADOS['escolhas']);//15 numero escolhidos pelo usuario
+				$bolas = $ret->resposta;
+				// $vezesQueGanhou = array();
+				$apontador = 0;
+				while($apontador < count($bolas)){
+					$concurso = new stdClass();
+					$concurso->id = $bolas[$apontador]->Concurso_id;
+					$concurso->bolasAcertadas = 0;
+
+					$bolasParaComparar = array();
+					for ($i = 0; $i < 15; $i++) {
+						array_push($bolasParaComparar, $bolas[$apontador++]->valor);
+					}
+
+					foreach ($escolhas as $escolha) {
+						//verifico se a escolha aparece nas bolas
+						$flgAchou = -1;//suponho que nao achou o par correspondente
+						for ($i = 0; $i < count($bolasParaComparar); $i++) {
+							if($escolha == $bolasParaComparar[$i]){
+								$flgAchou = $i;//achou par correspondente
+								break;
+							}
+						}
+
+						if($flgAchou != -1){//achou correspondente
+							//removo a bola ja comparada
+							unset($bolasParaComparar[$flgAchou]);
+							$bolasParaComparar = array_values($bolasParaComparar);
+							$concurso->bolasAcertadas++;
+						}
+					}
+					//agora com as comparacoes ja feitas insiro o resultado dele neste concuso
+					//neste ponto da para decidir oq retornar
+					// array_push($vezesQueGanhou, $concurso);
+					$retorno->resposta[$concurso->bolasAcertadas] += 1;//falo que no concurso ele acerto tantas bolas
+				}
+			}
 			break;
 	}
 

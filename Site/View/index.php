@@ -84,6 +84,24 @@
 				};
 			}
 
+			function testarJogada(){
+				var url = "../Controller/lotoInterface.php";
+				var acao = "testarJogada";
+				var escolhas = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
+
+				ajax = new XMLHttpRequest();
+				ajax.open("POST",url);
+				ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+				ajax.send("acao="+acao+"&escolhas="+JSON.stringify(escolhas));
+				ajax.onload = function() {
+					if (ajax.readyState == 4) {
+						if (ajax.status == 200) {
+							alert(ajax.responseText);//objeto com as informacoes carregadas do arquivo
+						}
+					}
+				};
+			}
+
 		</script>
 	</head>
 	<body>
@@ -91,5 +109,6 @@
 		<input type="button" onclick="sincronizarJSON();" value="Sincronizar"/><!-- lembrar de desabilitar esse botao ate o carregamento estar efetuado, para n bugar acontecendo os dois juntos; -->
 		<input type="button" onclick="carregarTudoDoBanco();" value="Carregar td do banco"/>
 		<input type="button" onclick="getBolasMaisSorteadas();" value="getBolasMaisSorteadas"/>
+		<input type="button" onclick="testarJogada();" value="testarJogada"/>
 	</body>
 </html>
