@@ -49,6 +49,7 @@
 				return JSON.stringify(retorno);
 			}
 
+			//retorna todas as informacoes salvas no banco
 			function carregarTudoDoBanco(){
 				var url = "../Controller/lotoInterface.php";
 				var acao = "carregarTudoDoBanco";
@@ -67,14 +68,16 @@
 				};
 			}
 
+			//retorna as bolas mais sorteadas,  pode ser usado o top para pegar so os 3 mehores
 			function getBolasMaisSorteadas(){
 				var url = "../Controller/lotoInterface.php";
 				var acao = "getBolasMaisSorteadas";
+				var top = 3;
 
 				ajax = new XMLHttpRequest();
 				ajax.open("POST",url);
 				ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-				ajax.send("acao="+acao+"&top=3");
+				ajax.send("acao="+acao+"&top="+top);
 				ajax.onload = function() {
 					if (ajax.readyState == 4) {
 						if (ajax.status == 200) {
@@ -84,6 +87,7 @@
 				};
 			}
 
+			//testa a jogada dos 15 numeros e retorna em quantos concursos faria 1,2,3,...15 pontos
 			function testarJogada(){
 				var url = "../Controller/lotoInterface.php";
 				var acao = "testarJogada";
@@ -102,6 +106,25 @@
 				};
 			}
 
+			//retorna a peorcentagem de ganhadores de cada estado, pode ser usado o top para pegar so os 3 mehores
+			function getEstadosComMaisGanhadores(){
+				var url = "../Controller/lotoInterface.php";
+				var acao = "getEstadosComMaisGanhadores";
+				var top = 3;
+
+				ajax = new XMLHttpRequest();
+				ajax.open("POST",url);
+				ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+				ajax.send("acao="+acao+"&top="+top);
+				ajax.onload = function() {
+					if (ajax.readyState == 4) {
+						if (ajax.status == 200) {
+							alert(ajax.responseText);//objeto com as informacoes carregadas do arquivo
+						}
+					}
+				};
+			}
+
 		</script>
 	</head>
 	<body>
@@ -110,5 +133,6 @@
 		<input type="button" onclick="carregarTudoDoBanco();" value="Carregar td do banco"/>
 		<input type="button" onclick="getBolasMaisSorteadas();" value="getBolasMaisSorteadas"/>
 		<input type="button" onclick="testarJogada();" value="testarJogada"/>
+		<input type="button" onclick="getEstadosComMaisGanhadores();" value="getEstadosComMaisGanhadores"/>
 	</body>
 </html>

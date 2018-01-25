@@ -217,8 +217,10 @@
 			$retorno = ConcursoDao::getBolasMaisSorteadas($top);
 			break;
 		case 'testarJogada':
-			$ret = ConcursoDao::getBolas();
-			if($ret->status){//deu certo
+			$retorno = ConcursoDao::getBolas();
+			if($retorno->status){//deu certo
+				$bolas = $retorno->resposta;
+
 				$retorno->status = true;
 				$retorno->resposta = array();//0,...,15 posicoes do vetor
 				for ($i=0; $i <= 15; $i++) {
@@ -226,7 +228,7 @@
 				}
 
 				$escolhas = json_decode($_DADOS['escolhas']);//15 numero escolhidos pelo usuario
-				$bolas = $ret->resposta;
+
 				// $vezesQueGanhou = array();
 				$apontador = 0;
 				while($apontador < count($bolas)){
@@ -260,6 +262,24 @@
 					//neste ponto da para decidir oq retornar
 					// array_push($vezesQueGanhou, $concurso);
 					$retorno->resposta[$concurso->bolasAcertadas] += 1;//falo que no concurso ele acerto tantas bolas
+				}
+			}
+			break;
+		case 'getEstadosComMaisGanhadores':
+			$top = $_DADOS['top'];
+
+			$retorno = ConcursoDao::getEstadosComMaisGanhadores();
+			if($retorno->status){//deu certo
+				$estados = $retorno->resposta;
+
+				$retorno->status = true;
+				$retorno->resposta = array();
+
+				$totalEstados = count($estados);//usar para calcular as porcentagens
+				$top = $top == "" ? $totalEstados : $top;
+				for ($i = 0; $i < $top; $i++) {
+					$estados[$i]->qnt /= $totalEstados;//para calcular as porcentagens
+					array_push($retorno->resposta, $estados[$i]);
 				}
 			}
 			break;

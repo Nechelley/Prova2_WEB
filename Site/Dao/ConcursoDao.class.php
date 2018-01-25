@@ -184,7 +184,12 @@
 
 		//retornaas bolas mais sorteadas
 		public static function getBolasMaisSorteadas($top){
-			$query = "SELECT valor, COUNT(*) AS qnt FROM Bola GROUP BY valor ORDER BY qnt DESC LIMIT {$top};";
+			$query = "SELECT valor, COUNT(*) AS qnt FROM Bola GROUP BY valor ORDER BY qnt DESC";
+
+			if($top != "")
+				$query .= " LIMIT {$top}";
+
+			$query .= ";";
 			// die($query);
 			//executa
 			return ProcessaQuery::consultarQuery($query);
@@ -193,6 +198,16 @@
 		//retorna todas as bolas
 		public static function getBolas(){
 			$query = "SELECT Concurso_id,valor FROM Bola;";
+			// die($query);
+			//executa
+			return ProcessaQuery::consultarQuery($query);
+		}
+
+		//retorna todos os estados e a quantidade de ganhadores
+		public static function getEstadosComMaisGanhadores(){
+			$query = "SELECT uf,COUNT(*) AS qnt FROM SuperGanhador
+					GROUP BY UF ORDER BY qnt DESC;";
+
 			// die($query);
 			//executa
 			return ProcessaQuery::consultarQuery($query);
