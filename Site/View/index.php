@@ -24,30 +24,30 @@
 				};
 			}
 
-			//sincroniza com o banco de acordo com o id do concurso
-			function sincronizarJSON(){
-				//pegar dados da tabela
-				var dadosParaSincronizar = getDados();
-
-				var url = "../Controller/lotoInterface.php";
-				var acao = "sincronizarHTML";
-
-				ajax = new XMLHttpRequest();
-				ajax.open("POST",url);
-				ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-				ajax.send("acao="+acao+"&dadosParaSincronizar="+dadosParaSincronizar);
-				ajax.onload = function() {
-					if (ajax.readyState == 4) {
-						if (ajax.status == 200) {
-							alert(JSON.parse(ajax.responseText).status);//objeto com as informacoes carregadas do arquivo
-						}
-					}
-				};
-			}
-			//cria o json com as informacoes da tabela
-			function getDados(){
-				return JSON.stringify(retorno);
-			}
+			// //sincroniza com o banco de acordo com o id do concurso
+			// function sincronizarJSON(){
+			// 	//pegar dados da tabela
+			// 	var dadosParaSincronizar = getDados();
+            //
+			// 	var url = "../Controller/lotoInterface.php";
+			// 	var acao = "sincronizarHTML";
+            //
+			// 	ajax = new XMLHttpRequest();
+			// 	ajax.open("POST",url);
+			// 	ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+			// 	ajax.send("acao="+acao+"&dadosParaSincronizar="+dadosParaSincronizar);
+			// 	ajax.onload = function() {
+			// 		if (ajax.readyState == 4) {
+			// 			if (ajax.status == 200) {
+			// 				alert(JSON.parse(ajax.responseText).status);//objeto com as informacoes carregadas do arquivo
+			// 			}
+			// 		}
+			// 	};
+			// }
+			// //cria o json com as informacoes da tabela
+			// function getDados(){
+			// 	return JSON.stringify(retorno);
+			// }
 
 			//retorna todas as informacoes salvas no banco
 			function carregarTudoDoBanco(){
@@ -128,11 +128,12 @@
 		</script>
 	</head>
 	<body>
-		<input type="button" onclick="carregarJSON();" value="Carregar"/>
-		<input type="button" onclick="sincronizarJSON();" value="Sincronizar"/><!-- lembrar de desabilitar esse botao ate o carregamento estar efetuado, para n bugar acontecendo os dois juntos; -->
+		<input type="button" onclick="carregarJSON();" value="Carregar do html..e ja salvar no banco"/>
+		<!-- <input type="button" onclick="sincronizarJSON();" value="Sincronizar"/><!-- lembrar de desabilitar esse botao ate o carregamento estar efetuado, para n bugar acontecendo os dois juntos; -->
 		<input type="button" onclick="carregarTudoDoBanco();" value="Carregar td do banco"/>
 		<input type="button" onclick="getBolasMaisSorteadas();" value="getBolasMaisSorteadas"/>
 		<input type="button" onclick="testarJogada();" value="testarJogada"/>
+		<input type="button" onclick="getEstadosComMaisGanhadores();" value="getEstadosComMaisGanhadores"/><br><br><br><h1>PART2</h1><br><br>
 		<input type="button" onclick="getEstadosComMaisGanhadores();" value="getEstadosComMaisGanhadores"/>
 	</body>
 </html>

@@ -75,6 +75,9 @@
 				}
 
 				$apontador++;//pula linha vazia
+
+				$linha->ocorreu = 1;
+
 				array_push($retorno->resposta, $linha);
 			}
 
@@ -152,7 +155,7 @@
 
 			break;
 		case 'carregarTudoDoBanco':
-			$ret = ConcursoDao::getTudo(100);
+			$ret = ConcursoDao::getTudo();
 			if(!$ret->status){//deu errado
 				$retorno->status = false;
 				$retorno->resposta = $ret->resposta;
@@ -167,6 +170,7 @@
 
 				$tamanho = count($ret[0]);
 				$apontador = 0;
+				$apontadorBolas = 0;
 				while($apontador < $tamanho){
 					$obj = new stdClass();
 
@@ -177,10 +181,11 @@
 					$obj->valorAcumuladoEspecial = $ret[0][$apontador]->valor_acumulado_especial;
 
 					$obj->bolas = array();
-					$aux = $apontador*15;
+					$aux = $apontadorBolas*15;
 					for($i = $aux; $i < $aux+15; $i++){
 						array_push($obj->bolas, $ret[1][$i]->valor);
 					}
+					$apontadorBolas++;
 
 					$obj->qntGanhadores11 = $ret[0][$apontador]->qnt_ganhadores;
 					$obj->rateio11 = $ret[0][$apontador++]->rateio;
