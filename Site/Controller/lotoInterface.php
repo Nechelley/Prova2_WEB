@@ -212,6 +212,10 @@
 				}
 			}
 			break;
+		case 'getBolasMaisSorteadas':
+			$top = $_DADOS['top'];
+			$retorno = ConcursoDao::getBolasMaisSorteadas($top);
+			break;
 	}
 
 	echo json_encode($retorno);

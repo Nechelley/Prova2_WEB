@@ -61,7 +61,24 @@
 					if (ajax.readyState == 4) {
 						if (ajax.status == 200) {
 							console.log(JSON.parse(ajax.responseText).resposta);//objeto com as informacoes carregadas do arquivo
-							
+
+						}
+					}
+				};
+			}
+
+			function getBolasMaisSorteadas(){
+				var url = "../Controller/lotoInterface.php";
+				var acao = "getBolasMaisSorteadas";
+
+				ajax = new XMLHttpRequest();
+				ajax.open("POST",url);
+				ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+				ajax.send("acao="+acao+"&top=3");
+				ajax.onload = function() {
+					if (ajax.readyState == 4) {
+						if (ajax.status == 200) {
+							alert(ajax.responseText);//objeto com as informacoes carregadas do arquivo
 						}
 					}
 				};
@@ -73,8 +90,6 @@
 		<input type="button" onclick="carregarJSON();" value="Carregar"/>
 		<input type="button" onclick="sincronizarJSON();" value="Sincronizar"/><!-- lembrar de desabilitar esse botao ate o carregamento estar efetuado, para n bugar acontecendo os dois juntos; -->
 		<input type="button" onclick="carregarTudoDoBanco();" value="Carregar td do banco"/>
-		<div id="carregados">
-
-		</div>
+		<input type="button" onclick="getBolasMaisSorteadas();" value="getBolasMaisSorteadas"/>
 	</body>
 </html>

@@ -171,11 +171,21 @@
 						FROM Ganhadores LEFT JOIN SuperGanhador ON Ganhadores.id = Ganhadores_id
 					) AS b
 					ON
-					a.id = b.Concurso_id order by id,qnt_bolas_acertadas LIMIT {$limit};";
+					a.id = b.Concurso_id order by id,qnt_bolas_acertadas
+
+					;";
 
 
 			$query[1] = "SELECT valor FROM Bola ORDER BY Concurso_id;";
 
+			//executa
+			return ProcessaQuery::consultarQuery($query);
+		}
+
+		//retorna os ids da tabela concurso
+		public static function getBolasMaisSorteadas($top){
+			$query = "SELECT valor, COUNT(*) AS qnt FROM Bola GROUP BY valor ORDER BY qnt DESC LIMIT {$top};";
+			// die($query);
 			//executa
 			return ProcessaQuery::consultarQuery($query);
 		}
