@@ -314,21 +314,21 @@
 				}
 			}
 			break;
-		// case 'encerrarConcurso':
-		// 	$obj = json_decode($_DADOS['obj']);
-        //
-		// 	//testa se o concurso ainda nao foi concluido
-		// 	$retorno = ConcursoDao::getConcurso($obj->id);
-		// 	if($retorno->status){//deu certo
-		// 		if(empty($retorno->resposta)){
-		// 			$retorno = ConcursoDao::addJogadaNoConcurso($jogada);
-		// 		}
-		// 		else{//ja foi concluido
-		// 			$retorno->status = false;
-		// 			$retorno->resposta = "Concurso já finalizado!";
-		// 		}
-		// 	}
-		// 	break;
+		case 'encerrarConcurso':
+			$obj = json_decode($_DADOS['obj']);
+
+			//testa se o concurso ainda nao foi concluido
+			$retorno = ConcursoDao::getConcurso($obj->id);
+			if($retorno->status){//deu certo
+				if(empty($retorno->resposta)){
+					$retorno = ConcursoDao::inserir($obj);
+				}
+				else{//ja foi concluido
+					$retorno->status = false;
+					$retorno->resposta = "Concurso já finalizado!";
+				}
+			}
+			break;
 	}
 
 	echo json_encode($retorno);
