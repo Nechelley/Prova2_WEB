@@ -162,6 +162,18 @@
 				};
 			}
 
+			//retorna 15 numeros aletorios de 1 a 25
+			function getNumerosDoSorteio(){
+				var numeros = [];
+				var num = -1;//so inicializa
+				while(numeros.length < 15){
+					num = Math.floor((Math.random() * 25) + 1);
+					if(numeros.indexOf(num) == -1)
+						numeros.push(num);
+				}
+				// alert(numeros);
+				return numeros;
+			}
 
 
 
@@ -178,5 +190,7 @@
 		<input type="button" onclick="getEstadosComMaisGanhadores();" value="getEstadosComMaisGanhadores"/><br><br><br><h1>PART2</h1><br><br>
 		<input type="button" onclick="criarNovoConcurso();" value="criarNovoConcurso"/>
 		<input type="button" onclick="addJogadaNoConcurso();" value="addJogadaNoConcurso"/>
+		<input type="button" onclick="getNumerosDoSorteio();" value="getNumerosDoSorteio"/>
+
 	</body>
 </html>
