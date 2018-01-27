@@ -16,6 +16,8 @@
 			var idAreaResposta;
 			var divAreaResposta;
 
+			var idConcursoCriado;
+
 			function init() {
 				desabilitarBotaoSincronizar();
 
@@ -24,6 +26,8 @@
 
 				idAreaResposta = 'areaResposta';
 				divAreaResposta = document.getElementById(idAreaResposta);
+
+				hideBtnEncerra();
 			}
 
 			function carregarJSON(){
@@ -60,10 +64,10 @@
 			function sincronizarJSON(){
 				//pegar dados da tabela
 				var dadosParaSincronizar = getDados();
-            
+
 				var url = "../Controller/lotoInterface.php";
 				var acao = "sincronizarHTML";
-            
+
 				ajax = new XMLHttpRequest();
 				ajax.open("POST",url);
 				ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -106,13 +110,13 @@
 				var url = "../Controller/lotoInterface.php";
 				var acao = "getBolasMaisSorteadas";
 
-				var valor = document.getElementById("qtdBolas").value;				
+				var valor = document.getElementById("qtdBolas").value;
 				var top;
 				if(valor > 0){
 					top = valor;
 				} else{
 					top = 3;
-				}				
+				}
 
 				ajax = new XMLHttpRequest();
 				ajax.open("POST",url);
@@ -135,8 +139,8 @@
 				var escolhas = new Array;
 
 				for (let i = 0; i < 15; i++) {
-					escolhas[i] = document.getElementById('jogadaTeste'+i).value;					
-				}				
+					escolhas[i] = document.getElementById('jogadaTeste'+i).value;
+				}
 
 				ajax = new XMLHttpRequest();
 				ajax.open("POST",url);
@@ -156,8 +160,8 @@
 			function getEstadosComMaisGanhadores(){
 				var url = "../Controller/lotoInterface.php";
 				var acao = "getEstadosComMaisGanhadores";
-				
-				var valor = document.getElementById("qtdEstados").value;				
+
+				var valor = document.getElementById("qtdEstados").value;
 				var top;
 				if(valor > 0){
 					top = valor;
@@ -206,17 +210,20 @@
 				ajax.onload = function() {
 					if (ajax.readyState == 4) {
 						if (ajax.status == 200) {
-							alert(ajax.responseText);//objeto com as informacoes carregadas do arquivo
+							//se status esta TRUE entao a resposta contem o id do concurso inserido
+							idConcursoCriado = JSON.parse(ajax.responseText).resposta;
+							// alert(idConcursoCriado);
 							showConcursoCadastrado(ajax.responseText);
 						}
 					}
 				};
 			}
+
 			//adicona a jogada em um concurso, o concurso nao pode estar concluido
 			function addJogadaNoConcurso(){
 				var url = "../Controller/lotoInterface.php";
 				var acao = "addJogadaNoConcurso";
-				var jogada = {id:501,nome:"John",cidade:"Lavras",uf:"MG",bolas:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]};
+				var jogada = {id:idConcursoCriado,nome:"John",cidade:"Lavras",uf:"MG",bolas:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]};
 
 				ajax = new XMLHttpRequest();
 				ajax.open("POST",url);
@@ -243,19 +250,35 @@
 				}
 				// alert(numeros);
 				// return numeros;
-				showNumSorteio(numeros);								
+				showNumSorteio(numeros);
 			}
 
-			//encerrar 
+			//encerrar
 			function encerrarConcurso(){
 				var url = "../Controller/lotoInterface.php";
 				var acao = "encerrarConcurso";
-				var concurso = //TODO;
+				var concurso = {
+					concurso: idConcursoCriado,
+					bolas: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
+					qntGanhadores11: 23,
+					rateio11: 24,
+					qntGanhadores12: 25,
+					rateio12: 26,
+					qntGanhadores13: 27,
+					rateio13: 28,
+					qntGanhadores14: 29,
+					rateio14: 3,
+					qntGanhadores15: 3,
+					rateio15: 321,
+					acumulado15: 1000,
+					cidades: ["uba","lav","pudim"],//3 cidades pq tem 3 ganhadores
+					ufs: ["MG","SP","PU"]
+				}
 
 				ajax = new XMLHttpRequest();
 				ajax.open("POST",url);
 				ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-				ajax.send("acao="+acao+"&obj="+concurso);
+				ajax.send("acao="+acao+"&obj="+JSON.stringify(concurso));
 				ajax.onload = function() {
 					if (ajax.readyState == 4) {
 						if (ajax.status == 200) {
@@ -264,13 +287,22 @@
 						}
 					}
 				};
+				var responseText = true
+				showEncerrouConcurso(responseText);
 			}
 
 			// funcoes para exibir respostas na tela
 
 			//Função que mostra se encerrou concurso ou nao
 			function showEncerrouConcurso(responseText) {
-
+				// var resposta = JSON.parse(responseText);0
+				if(responseText){
+					showBtnConcurso();
+					hideBtnEncerra();
+					alert("Concurso encerrado com sucesso!");
+				} else{
+					alert("Houve um erro ao encerrar concurso! Por favor tente novamente");
+				}
 			}
 
 			// funcao para exibir todo o arquivo na tela
@@ -278,7 +310,7 @@
 
 			}
 
-			function showNumSorteio(numeros) {				
+			function showNumSorteio(numeros) {
 				cleanChilds(divAreaResposta);
 				var titulo = document.createElement("h2");
 				titulo.innerHTML = "Resultado do Sorteio:";
@@ -289,7 +321,7 @@
 				areaResultado.setAttribute("id",id);
 				divAreaResposta.appendChild(areaResultado);
 
-				showBalls(numeros,id);	
+				showBalls(numeros,id);
 			}
 
 			// funcao para montar e exibir as bolas
@@ -299,9 +331,9 @@
 
 				cleanChilds(areaBolas);
 				console.log(numeros.length);
-				for (let i = 0; i < numeros.length; i++) {					
+				for (let i = 0; i < numeros.length; i++) {
 					inserirBola(numeros[i],areaBolas);
-				}				
+				}
 			}
 
 
@@ -309,8 +341,8 @@
 				var bola = document.createElement('div');
 				bola.setAttribute('class','bola');
 				bola.innerHTML = num;
-				areaBolas.appendChild(bola);	
-			}			
+				areaBolas.appendChild(bola);
+			}
 
 			function cleanChilds(nodeDOM) {
 				while (nodeDOM.firstChild) {
@@ -346,7 +378,7 @@
 				divAreaPergunta.appendChild(form);
 			}
 
-			function perguntaQtdEstados() {				
+			function perguntaQtdEstados() {
 				showAreaPergunta();
 
 				cleanChilds(divAreaPergunta);
@@ -371,7 +403,7 @@
 
 				form.appendChild(botao);
 
-				divAreaPergunta.appendChild(form);			
+				divAreaPergunta.appendChild(form);
 			}
 
 			function perguntaJogadaParaTeste() {
@@ -395,7 +427,7 @@
 					input.setAttribute("min","1");
 					input.setAttribute("max","25");
 
-					form.appendChild(input);	
+					form.appendChild(input);
 				}
 
 				var botao = document.createElement("button");
@@ -405,7 +437,7 @@
 				form.appendChild(botao);
 
 				divAreaPergunta.appendChild(form);
-	
+
 			}
 
 			function perguntaDadosDoConcurso() {
@@ -419,7 +451,7 @@
 				divAreaPergunta.appendChild(titulo);
 
 				var form = document.createElement("section");
-				form.setAttribute("class","sectionPergunta")															
+				form.setAttribute("class","sectionPergunta")
 
 				// dia
 				var input = document.createElement("input");
@@ -430,7 +462,7 @@
 				input.setAttribute("placeholder","Dia");
 				input.setAttribute("max","31");
 
-				form.appendChild(input);				
+				form.appendChild(input);
 				//mes
 				input = document.createElement("input");
 				input.setAttribute("type","number");
@@ -440,7 +472,7 @@
 				input.setAttribute("placeholder","Mes");
 				input.setAttribute("max","31");
 
-				form.appendChild(input);				
+				form.appendChild(input);
 
 				// ano
 				input = document.createElement("input");
@@ -448,25 +480,25 @@
 				input.setAttribute("id","ano");
 				input.setAttribute("class","formInput");
 				input.setAttribute("min","2018");
-				input.setAttribute("placeholder","Ano");				
+				input.setAttribute("placeholder","Ano");
 
-				form.appendChild(input);	
+				form.appendChild(input);
 
 				// estimativa
 				input = document.createElement("input");
 				input.setAttribute("type","number");
 				input.setAttribute("id","estimativaPremio");
-				input.setAttribute("class","formInput");				
-				input.setAttribute("placeholder","Estimativa");				
+				input.setAttribute("class","formInput");
+				input.setAttribute("placeholder","Estimativa");
 
-				form.appendChild(input);	
+				form.appendChild(input);
 
 				// valor acumulador
 				input = document.createElement("input");
 				input.setAttribute("type","number");
 				input.setAttribute("id","valorAcumuladoEspecial");
-				input.setAttribute("class","formInput");				
-				input.setAttribute("placeholder","Valor acumulado");				
+				input.setAttribute("class","formInput");
+				input.setAttribute("placeholder","Valor acumulado");
 
 				form.appendChild(input);
 
@@ -474,8 +506,8 @@
 				input = document.createElement("input");
 				input.setAttribute("type","number");
 				input.setAttribute("id","arrecadacaoTotal");
-				input.setAttribute("class","formInput");				
-				input.setAttribute("placeholder","Arrecadação Total");				
+				input.setAttribute("class","formInput");
+				input.setAttribute("placeholder","Arrecadação Total");
 
 				form.appendChild(input);
 
@@ -485,7 +517,7 @@
 
 				form.appendChild(botao);
 
-				divAreaPergunta.appendChild(form);	
+				divAreaPergunta.appendChild(form);
 			}
 
 			function showAreaPergunta() {
@@ -498,7 +530,7 @@
 
 			// funcao que faz pop se adicionou jogado ou nao
 			function showAdicionouJogada(responseText) {
-				
+
 			}
 
 			function showJogadasTestadas(responseText,escolhas) {
@@ -554,16 +586,39 @@
 
 				divAreaResposta.appendChild(jogo);
 
-				divAreaResposta.appendChild(tabela);		
+				divAreaResposta.appendChild(tabela);
 			}
 
 			function showConcursoCadastrado(responseText) {
 				var resposta = JSON.parse(responseText);
-				if(resposta.status == true)
+				if(resposta.status == true){
+					hideBtnConcurso();
+					showBtnEncerra();
 					alert("Concurso Criado com Sucesso!");
+				}
 				else{
 					alert("Falha ao criar concurso!");
 				}
+			}
+
+			function hideBtnConcurso(){
+				var btn = document.getElementById('btn-concurso');
+				btn.style.display = "none";
+			}
+
+			function showBtnConcurso(){
+				var btn = document.getElementById('btn-concurso');
+				btn.style.display = "inline";
+			}
+
+			function hideBtnEncerra(){
+				var btn = document.getElementById('btn-encerra');
+				btn.style.display = "none";
+			}
+
+			function showBtnEncerra(){
+				var btn = document.getElementById('btn-encerra');
+				btn.style.display = "inline";
 			}
 
 			// funcao que exibe os estados com mais ganhadores
@@ -609,7 +664,7 @@
 				var titulo = document.createElement("h2");
 				titulo.innerHTML = "Estados mais sorteados";
 				divAreaResposta.appendChild(titulo);
-				divAreaResposta.appendChild(tabela);	
+				divAreaResposta.appendChild(tabela);
 			}
 
 			// funcao que exibe as bolas mais sorteadas
@@ -665,22 +720,22 @@
 				// cria theads
 				var thead = document.createElement("thead");
 
-				for (let i = 0; i < cabecalhos.length; i++) {					
+				for (let i = 0; i < cabecalhos.length; i++) {
 					var th = document.createElement("th");
 					th.innerHTML = cabecalhos[i];
 					thead.appendChild(th);
-				}				
+				}
 
 				// insiro thedas
 				table.appendChild(thead);
-				return table;				
+				return table;
 			}
 
 		</script>
 	</head>
 	<body>
 		<header>
-			<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWPF27fmaM7hjaCoPjhp89VYfAe4ckCB5MjdTu0wgcke5kAFj4" alt="Logo">	
+			<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWPF27fmaM7hjaCoPjhp89VYfAe4ckCB5MjdTu0wgcke5kAFj4" alt="Logo">
 			<h2>Analisador de Resultados</h2>
 		</header>
 		<nav>
@@ -691,10 +746,10 @@
 			<input type="button" onclick="perguntaQtdBolas();" value="Bolas mais sorteadas"/>
 			<input type="button" onclick="perguntaJogadaParaTeste();" value="Testar Jogada"/>
 			<input type="button" onclick="perguntaQtdEstados();" value="Estados com mais ganhadores"/>
-			<input type="button" onclick="perguntaDadosDoConcurso();" value="Criar concurso"/>
+			<input id="btn-concurso" type="button" onclick="perguntaDadosDoConcurso();" value="Criar concurso"/>
 			<input type="button" onclick="addJogadaNoConcurso();" value="Add jogada no concurso"/>
 			<input type="button" onclick="getNumerosDoSorteio();" value="Realizar Sorteio"/>
-			<input type="button" onclick="encerrarConcurso();" value="Encerrar concurso"/>		
+			<input id="btn-encerra" type="button" onclick="encerrarConcurso();" value="Encerrar concurso"/>
 		</nav>
 		<section>
 			<!-- area das perguntas -->

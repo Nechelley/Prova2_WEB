@@ -297,6 +297,7 @@
 				$obj->id = $retorno->resposta[0]->id + 1;
 
 				$retorno = ConcursoDao::criarNovoConcurso($obj);
+				$retorno->resposta = $obj->id;
 			}
 			break;
 		case 'addJogadaNoConcurso':
@@ -318,10 +319,10 @@
 			$obj = json_decode($_DADOS['obj']);
 
 			//testa se o concurso ainda nao foi concluido
-			$retorno = ConcursoDao::getConcurso($obj->id);
+			$retorno = ConcursoDao::getConcurso($obj->concurso);
 			if($retorno->status){//deu certo
 				if(empty($retorno->resposta)){
-					$retorno = ConcursoDao::inserir($obj);
+					$retorno = ConcursoDao::encerrarConcurso($obj);
 				}
 				else{//ja foi concluido
 					$retorno->status = false;

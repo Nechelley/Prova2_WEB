@@ -219,6 +219,8 @@
 			return ProcessaQuery::consultarQuery($query);
 		}
 
+
+
 		//criar um novo concurso vazio
 		public static function criarNovoConcurso($obj){
 			//cria a query
@@ -272,6 +274,75 @@
 			// 	die(print_r($query,true));
 			//executa
 			return ProcessaQuery::consultarQuery($query);
+		}
+
+		//finaliza o concurso
+		public static function encerrarConcurso($obj){
+			//cria a query
+			$query = array();
+			$x = 0;//contador de queries
+
+			//add concurso
+			$query[$x++] = "UPDATE Concurso SET
+							ocorreu = 1
+							WHERE id = {$obj->concurso};";
+
+			$query[$x] = "INSERT INTO Bola
+			(valor,Concurso_id)
+			VALUES";
+			foreach ($obj->bolas as $bola) {
+				$query[$x] .= "({$bola},{$obj->concurso}),";
+			}
+			$query[$x] = rtrim($query[$x],",").";";
+			$x++;
+
+			//11 bolas acertadas
+
+			$query[$x++] = "INSERT INTO Ganhadores
+			(qnt_bolas_acertadas,qnt_ganhadores,rateio,Concurso_id)
+			VALUES
+			(11,{$obj->qntGanhadores11},{$obj->rateio11},{$obj->concurso});";
+
+			//12 bolas acertadas
+
+			$query[$x++] = "INSERT INTO Ganhadores
+			(qnt_bolas_acertadas,qnt_ganhadores,rateio,Concurso_id)
+			VALUES
+			(12,{$obj->qntGanhadores12},{$obj->rateio12},{$obj->concurso});";
+
+			//13 bolas acertadas
+
+			$query[$x++] = "INSERT INTO Ganhadores
+			(qnt_bolas_acertadas,qnt_ganhadores,rateio,Concurso_id)
+			VALUES
+			(13,{$obj->qntGanhadores13},{$obj->rateio13},{$obj->concurso});";
+
+			//14 bolas acertadas
+
+			$query[$x++] = "INSERT INTO Ganhadores
+			(qnt_bolas_acertadas,qnt_ganhadores,rateio,Concurso_id)
+			VALUES
+			(14,{$obj->qntGanhadores14},{$obj->rateio14},{$obj->concurso});";
+
+			//15 bolas acertadas
+
+			$query[$x++] = "INSERT INTO Ganhadores
+			(qnt_bolas_acertadas,qnt_ganhadores,rateio,Concurso_id,acumulado)
+			VALUES
+			(15,{$obj->qntGanhadores15},{$obj->rateio15},{$obj->concurso},{$obj->acumulado15});";
+
+			$query[$x] = "INSERT INTO SuperGanhador
+			(cidade,uf,Ganhadores_id)
+			VALUES";
+			for ($i=0; $i < $obj->qntGanhadores15; $i++) {
+				$query[$x] .= "('{$obj->cidades[$i]}','{$obj->ufs[$i]}',LAST_INSERT_ID()),";
+			}
+			$query[$x] = rtrim($query[$x],",").";";
+			$x++;
+
+			// die(print_r($query,true));
+			//executa
+			return ProcessaQuery::executarQuery($query);
 		}
 	}
 ?>
