@@ -213,6 +213,8 @@
 							//se status esta TRUE entao a resposta contem o id do concurso inserido
 							idConcursoCriado = JSON.parse(ajax.responseText).resposta;
 							// alert(idConcursoCriado);
+
+							localStorage.setItem("concurso",JSON.stringify(concurso));
 							showConcursoCadastrado(ajax.responseText);
 						}
 					}
@@ -223,7 +225,29 @@
 			function addJogadaNoConcurso(){
 				var url = "../Controller/lotoInterface.php";
 				var acao = "addJogadaNoConcurso";
-				var jogada = {id:idConcursoCriado,nome:"John",cidade:"Lavras",uf:"MG",bolas:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]};
+				var jogada = {
+					id:idConcursoCriado,
+					nome:"John",
+					cidade:"Lavras",
+					uf:"MG",
+					bolas:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
+				};
+
+				var escolhas = new Array;
+
+				for (let i = 0; i < 15; i++) {
+					escolhas[i] = document.getElementById('jogadaReal'+i).value;
+				}
+
+				jogada.nome = document.getElementById('nomeJogador').value;
+				jogada.cidade = document.getElementById('cidadeJogador').value;
+				jogada.uf = document.getElementById('ufJogador').value;
+				jogada.bolas = escolhas;
+
+				console.log("cheguei aqui");
+				var jogadas = new Array;
+				jogadas.push(jogada);
+				localStorage.setItem("jogadas",JSON.stringify(jogadas));
 
 				ajax = new XMLHttpRequest();
 				ajax.open("POST",url);
@@ -232,7 +256,7 @@
 				ajax.onload = function() {
 					if (ajax.readyState == 4) {
 						if (ajax.status == 200) {
-							alert(ajax.responseText);//objeto com as informacoes carregadas do arquivo
+							// alert(ajax.responseText);//objeto com as informacoes carregadas do arquivo
 							showAdicionouJogada(ajax.responseText);
 						}
 					}
@@ -247,9 +271,10 @@
 					num = Math.floor((Math.random() * 25) + 1);
 					if(numeros.indexOf(num) == -1)
 						numeros.push(num);
-				}
-				// alert(numeros);
-				// return numeros;
+				}				
+				// guardo bolas sorteadas e escondo o botao de sortear de novo
+				localStorage.setItem("bolasSorteadas",JSON.stringify(numeros));
+				hideBtnSorteio();
 				showNumSorteio(numeros);
 			}
 
@@ -259,7 +284,8 @@
 				var acao = "encerrarConcurso";
 				var concurso = {
 					concurso: idConcursoCriado,
-					bolas: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
+					bolas: JSON.parse(localStorage.getItem("bolasSorteadas")),
+					// calculos que vem ser feios
 					qntGanhadores11: 23,
 					rateio11: 24,
 					qntGanhadores12: 25,
@@ -275,6 +301,59 @@
 					ufs: ["MG","SP","PU"]
 				}
 
+				// calculo os calculos dos ganhadores
+				var bolasSorteadas = JSON.parse(localStorage.getItem("bolasSorteadas"));
+				var jogadas = JSON.parse(localStorage.getItem("jogadas"));
+
+
+				var ganhadores15 = 0;
+				var ganhadores14 = 0;
+				var ganhadores13 = 0;
+				var ganhadores12 = 0;
+				var ganhadores11 = 0;
+
+				var ufGanhadores = new Array;
+				var cidadesGanhadores = new Array;
+
+				for (let i = 0; i < jogadas.length; i++) {					
+					var pontos = 0;
+					var jogadaCompleta = jogadas[i];
+					var bolasJogadas = jogadas[i].bolas;
+
+					for(let j = 0; j < bolasJogadas.lenght; j++){
+						for(let k = 0; k < 15; k++){
+							if(bolasJogadas[j] == bolasSorteadas[k]){
+								pontos += 1;
+							}
+						}						
+					}
+
+					// calculo qtd de ganhadores
+					if(pontos == 15){
+						ganhadores15 += 1;
+						ufGanhadores.push(jogadaCompleta.uf);
+						cidadesGanhadores.push(jogadaCompleta.cidade);
+					} else if(pontos == 14){
+						ganhadores14 += 1;
+					} else if(pontos == 13){
+						ganhadores13 += 1;
+					} else if(pontos == 12){
+						ganhadores12 += 1;
+					} else if(pontos == 11){
+						ganhadores11 += 1;
+					}
+				}
+
+				//guardo os dados no objeto
+				concurso.qntGanhadores15 = ganhadores15;
+				concurso.qntGanhadores14 = ganhadores14;
+				concurso.qntGanhadores13 = ganhadores13;
+				concurso.qntGanhadores12 = ganhadores12;
+				concurso.qntGanhadores11 = ganhadores11;
+
+				concurso.cidades = cidadesGanhadores;
+				concurso.ufs = 	ufGanhadores;
+
 				ajax = new XMLHttpRequest();
 				ajax.open("POST",url);
 				ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -282,24 +361,28 @@
 				ajax.onload = function() {
 					if (ajax.readyState == 4) {
 						if (ajax.status == 200) {
-							alert(ajax.responseText);//objeto com as informacoes carregadas do arquivo
-							showEncerrouConcurso(ajax.responseText);
+							// alert(ajax.responseText);//objeto com as informacoes carregadas do arquivo
+							showBtnSorteio();
+							showEncerrouConcurso(ajax.responseText,concurso);
 						}
 					}
-				};
-				var responseText = true
-				showEncerrouConcurso(responseText);
+				};				
 			}
 
 			// funcoes para exibir respostas na tela
 
 			//Função que mostra se encerrou concurso ou nao
-			function showEncerrouConcurso(responseText) {
-				// var resposta = JSON.parse(responseText);0
+			function showEncerrouConcurso(responseText,concurso) {
+				var resposta = JSON.parse(responseText);
 				if(responseText){
 					showBtnConcurso();
 					hideBtnEncerra();
 					alert("Concurso encerrado com sucesso!");
+					alert("Ganhadores com 15 pontos: "+concurso.qntGanhadores15
+						+"\nGanhadores com 14 pontos: "+concurso.qntGanhadores14
+						+"\nGanhadores com 13 pontos: "+concurso.qntGanhadores13
+						+"\nGanhadores com 12 pontos: "+concurso.qntGanhadores12
+						+"\nGanhadores com 11 pontos: "+concurso.qntGanhadores11);
 				} else{
 					alert("Houve um erro ao encerrar concurso! Por favor tente novamente");
 				}
@@ -311,6 +394,7 @@
 			}
 
 			function showNumSorteio(numeros) {
+				cleanChilds(divAreaPergunta);
 				cleanChilds(divAreaResposta);
 				var titulo = document.createElement("h2");
 				titulo.innerHTML = "Resultado do Sorteio:";
@@ -440,6 +524,73 @@
 
 			}
 
+			function perguntaJogadaReal() {
+				showAreaPergunta();
+
+				cleanChilds(divAreaPergunta);
+
+				var titulo = document.createElement("h1");
+				titulo.innerHTML = "Escolha 15 numeros e tente a sorte no concurso "+idConcursoCriado+":";
+				divAreaPergunta.appendChild(titulo);
+
+				// dados do participante
+				var section = document.createElement("section");
+				section.setAttribute("class","sectionPergunta")
+
+				//nome
+				var inp = document.createElement("input");
+				inp.setAttribute("type","text");
+				inp.setAttribute("id","nomeJogador");
+				inp.setAttribute("placeholder","nome");
+				inp.setAttribute("class","formInput");				
+
+				section.appendChild(inp);
+
+				//cidade
+				inp = document.createElement("input");
+				inp.setAttribute("type","text");
+				inp.setAttribute("id","cidadeJogador");
+				inp.setAttribute("placeholder","cidade");
+				inp.setAttribute("class","formInput");				
+
+				section.appendChild(inp);
+				//uf
+				inp = document.createElement("input");
+				inp.setAttribute("type","text");
+				inp.setAttribute("id","ufJogador");
+				inp.setAttribute("class","formInput");				
+				inp.setAttribute("placeholder","UF");
+				inp.setAttribute("maxlength","2");
+
+				section.appendChild(inp);
+
+				divAreaPergunta.appendChild(section);
+
+				var form = document.createElement("section");
+				form.setAttribute("class","sectionPergunta")
+
+				// crio inputs para cada num
+				for (let i = 0; i < 15; i++) {
+					var input = document.createElement("input");
+					input.setAttribute("type","number");
+					input.setAttribute("id","jogadaReal"+i);
+					input.setAttribute("class","formInput");
+					input.setAttribute("min","1");
+					input.setAttribute("max","25");
+
+					form.appendChild(input);
+				}
+
+				var botao = document.createElement("button");
+				botao.setAttribute("onclick","addJogadaNoConcurso();");
+				botao.innerHTML = "Jogar";
+
+				form.appendChild(botao);
+
+				divAreaPergunta.appendChild(form);
+
+			}
+
 			function perguntaDadosDoConcurso() {
 				showAreaPergunta();
 
@@ -470,7 +621,7 @@
 				input.setAttribute("class","formInput");
 				input.setAttribute("min","01");
 				input.setAttribute("placeholder","Mes");
-				input.setAttribute("max","31");
+				input.setAttribute("max","12");
 
 				form.appendChild(input);
 
@@ -530,7 +681,13 @@
 
 			// funcao que faz pop se adicionou jogado ou nao
 			function showAdicionouJogada(responseText) {
-
+				var resposta = JSON.parse(responseText);
+				if(resposta.status == true){					
+					alert("Jogada adicionada com Sucesso!");
+				}
+				else{
+					alert("Falha ao realizar jogada!");
+				}
 			}
 
 			function showJogadasTestadas(responseText,escolhas) {
@@ -592,6 +749,8 @@
 			function showConcursoCadastrado(responseText) {
 				var resposta = JSON.parse(responseText);
 				if(resposta.status == true){
+					cleanChilds(divAreaPergunta);
+					cleanChilds(divAreaResposta);
 					hideBtnConcurso();
 					showBtnEncerra();
 					alert("Concurso Criado com Sucesso!");
@@ -608,6 +767,16 @@
 
 			function showBtnConcurso(){
 				var btn = document.getElementById('btn-concurso');
+				btn.style.display = "inline";
+			}
+
+			function hideBtnSorteio(){
+				var btn = document.getElementById('btn-sorteio');
+				btn.style.display = "none";
+			}
+
+			function showBtnSorteio(){
+				var btn = document.getElementById('btn-sorteio');
 				btn.style.display = "inline";
 			}
 
@@ -747,8 +916,8 @@
 			<input type="button" onclick="perguntaJogadaParaTeste();" value="Testar Jogada"/>
 			<input type="button" onclick="perguntaQtdEstados();" value="Estados com mais ganhadores"/>
 			<input id="btn-concurso" type="button" onclick="perguntaDadosDoConcurso();" value="Criar concurso"/>
-			<input type="button" onclick="addJogadaNoConcurso();" value="Add jogada no concurso"/>
-			<input type="button" onclick="getNumerosDoSorteio();" value="Realizar Sorteio"/>
+			<input type="button" onclick="perguntaJogadaReal();" value="Add jogada no concurso"/>
+			<input id="btn-sorteio" type="button" onclick="getNumerosDoSorteio();" value="Realizar Sorteio"/>
 			<input id="btn-encerra" type="button" onclick="encerrarConcurso();" value="Encerrar concurso"/>
 		</nav>
 		<section>
